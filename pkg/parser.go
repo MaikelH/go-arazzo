@@ -3,8 +3,10 @@ package pkg
 import (
 	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/maikelh/go-arazzo/pkg/arazzo"
+	"gopkg.in/yaml.v3"
 )
 
 type FileType string
@@ -25,7 +27,18 @@ func ParseFile(reader io.Reader, filetype FileType) (*arazzo.Document, error) {
 }
 
 func parseYAML(reader io.Reader) (*arazzo.Document, error) {
-	panic("unimplemented")
+	var doc arazzo.Document
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		slog.Error("failed to read YAML file", "error", err)
+		return nil, err
+	}
+	err = yaml.Unmarshal(data, &doc)
+	if err != nil {
+		slog.Error("failed to parse YAML file", "error", err)
+		return nil, err
+	}
+	return &doc, nil
 }
 
 func parseJSON(reader io.Reader) (*arazzo.Document, error) {
